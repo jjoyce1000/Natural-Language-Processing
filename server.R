@@ -1,21 +1,6 @@
 ################################################################################################
-##
-##  This is the Shiny server.R file that is used for a gymnastics scoring app.
-##
-##  This script does the following:
-##      - Reads a website (www.meetscoresonline.com) and parses the html code.
-##      - Loads the parsed data and creates a data frame that contains the following:
-##          -   meet:   Name of the gymnastics meet
-##          -   gender: Gender for the participants in the gymnastics meet
-##          -   state:  State for where the gymnastics meet was completed.
-##          -   V1:     Code that specifies the link to the scoring website.
-##          -   site:   Website that contains the scoring information for the gynmastics meet.
-##      - Allows the user to use a drop down box to select the state for thy gymnastics meet.
-##      - Outputs the following:
-##          -   Report showing all of the gymnastics meets for men and women by state.
-##          -   Plots showing the distribution of meets for men and women by state.
-##
 ################################################################################################
+
 
 ##  Load the following packages to manipulate data as needed.
     
