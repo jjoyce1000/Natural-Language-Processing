@@ -1,5 +1,13 @@
-################################################################################################
-################################################################################################
+#########################################################################################################################################
+##
+##  filename:   server.R
+##  author:     John Joyce
+##  date:       Mar 11, 2018
+##
+##  This script defines the server.R functionality for the Natural Language Processing - Text Prediction Shiny Application.
+##  This script provides the output for the application based upon the user text box and slider input.
+##
+#########################################################################################################################################
 
 
 ##  Load the following packages to manipulate data as needed.
