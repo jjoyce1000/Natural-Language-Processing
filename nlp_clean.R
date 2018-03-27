@@ -10,7 +10,8 @@
 
 #########################################################################################################################################
 ##
-##  Create a function to clean a corpus.
+##  Function to clean a corpus with the tm package.
+##  Input = corpus, Output = corpus
 ##
 #########################################################################################################################################
 
@@ -25,59 +26,34 @@
         corpus    <- tm_map(corpus, removeWords, profanity_list)
         corpus    <- tm_map(corpus, stripWhitespace)
         corpus    <- tm_map(corpus, content_transformer(function(x) str_trim(x)))
-        #corpus    <- tm_map(corpus, content_transformer(function(x) replace_repeat(x)))
-        #corpus    <- tm_map(corpus, content_transformer(function(x) replace_letter_repeat(x)))
- 
         print("Corpus cleaning complete.")
         return(corpus)
     }
 
-#########################################################################################################################################    
-##
-##  Create a function that removes repeated words in a string.
-##
-#########################################################################################################################################   
-    
-    # replace_repeat <- function(input) {
-    #     my_fix <- unlist(strsplit(input, split=" "))
-    #     my_fix <- paste(my_fix[-which(duplicated(my_fix))], collapse = ' ')
-    #     return(my_fix)
-    # }
-
-#########################################################################################################################################    
-##
-##  Create a function that removes repeated letters (3 or more times) in a string.
-##
-#########################################################################################################################################
-
-    # replace_letter_repeat <- function(input) {
-    #     my_fix <- gsub("([[:alpha:]])\\1{2,}", "\\1", input)
-    # }
-    
 #########################################################################################################################################
 ##    
-##  Create a function to output from readlines function into sentences using the qdap package.
-##  input = text from original file, percent_of_sample = % of original file to sample.
+##  Function to output from readlines function into sentences using the qdap package.
+##  Input = text from source data set, percent_of_sample = % of original file to sample. Output = sampled dataset of sentences.
 ##
 #########################################################################################################################################
     
     convert_to_sentence <- function(input, percent_of_sample) {
-      #set.seed(100)
-      print("Converting to sentence samples...")
-      input     <- sample(input, length(input) * (percent_of_sample/100))
-      input     <- sent_detect_nlp(input)
-      print("Conversion to sentence samples complete.")
-      return(input)
+        print("Converting to sentence samples...")
+        input     <- sample(input, length(input) * (percent_of_sample/100))
+        input     <- sent_detect_nlp(input)
+        print("Conversion to sentence samples complete.")
+        return(input)
     }
 
 #########################################################################################################################################    
 ##
-##  Create a function to saves the sampled files.
+##  Function to saves the sampled files.
+##  Input = sampled data files, type of file (blogs, news, twitter), Output = text file
 ##
 #########################################################################################################################################
     
     save_sample <- function(input, input_type) {
-        wd <- getwd()
+        wd  <- getwd()
         con <- file(paste(sample_data_path, input_type, "_sample.txt",sep = ""))
         writeLines(input, con)
         close(con)
@@ -85,41 +61,43 @@
 
 #########################################################################################################################################    
 ##
-##  Create a function to create a corpus
-##  input = text from sample file
+##  Function to create a corpus with the tm package.
+##  Input = sampled text files, Output = corpus
 ##
 #########################################################################################################################################
     
-    convert_to_corpus   <- function(input) {
-      print("Creating corpus...")
-      corpus          <- VCorpus(VectorSource(input))
-      print("Creation of corpus complete.")
-      return(corpus)
+    convert_to_corpus <- function(input) {
+        print("Creating corpus...")
+        corpus    <- VCorpus(VectorSource(input))
+        print("Creation of corpus complete.")
+        return(corpus)
     }
 
 #########################################################################################################################################    
 ##
-##  Create a function to calculate corpus statistics
-##  input = x
+##  Function to calculate corpus statistics.
+##  Input = corpus, type of file (blogs, news, twitter), Output = data frame of file statistics (lines, words, characters).
 ##
 #########################################################################################################################################
     
     corpus_stats    <- function(x, input_type) {
-      line_count            <- length(content(x))
-      char_count            <- sum(unlist(lapply(x, nchar)))
-      num_of_words          <- lapply(x, RWeka::WordTokenizer)
-      word_count            <- wordcount(unlist(num_of_words))
-      stats_df_sample       <- data.frame(source = input_type,
-                                          line.count = line_count,
-                                          word.count = word_count,
-                                          char.count = char_count)
-      return(stats_df_sample)
+        line_count            <- length(content(x))
+        char_count            <- sum(unlist(lapply(x, nchar)))
+        num_of_words          <- lapply(x, RWeka::WordTokenizer)
+        word_count            <- wordcount(unlist(num_of_words))
+        stats_df_sample       <- data.frame(source = input_type,
+                                            line.count = line_count,
+                                            word.count = word_count,
+                                            char.count = char_count)
+        return(stats_df_sample)
     }
  
 #########################################################################################################################################   
 ##
-##  Create a function to tokenize the corpus data sets.
-##  corpus = corpus object, ngram_num = number of ngrams to calculate
+##  Function to tokenize the corpus data sets into ngrams using the Weka package.
+##  The top 75% of the ngrams results are saved into individual .rds files (1 for each ngram...1 thru 6).
+##  The ngrams .rds files are used as the source 'dictionary' files for the text prediction application.
+##  Input = corpus, ngram_num = number of ngrams to calculate, Output = dataframe of top 75% most frequent ngrams.
 ##
 #########################################################################################################################################
     
@@ -137,10 +115,8 @@
         rownames(top_words) <- NULL
         top_words     <- data.frame(cbind(ngram[1:len], top_words[1:len,]))
         colnames(top_words) <- c("ngram", "frequency")
-        
         convert_factor              <- sapply(top_words, is.factor)
         top_words[convert_factor]  <- lapply(top_words[convert_factor], as.character)
-        
         saveRDS(word_split(top_words,ngram_num), paste("./ngram_",ngram_num,".rds", sep = ""))
         print("Completed token creation...")
         return(top_words)
@@ -148,7 +124,9 @@
 
 #########################################################################################################################################        
 ##
-##  Create a function to split the ngram data frame by column based on the number of ngrams. 
+##  Function to split the ngram data frame by column based on the number of ngrams. 
+##  The first n-1 ngram sequence is stored in one column and the last word of the ngram sequence is stored in another column.
+##  Input = ngram dataframe, ngram number, Output = dataframe of with split ngram sequence.
 ##
 #########################################################################################################################################
 
@@ -161,9 +139,9 @@
 
 #########################################################################################################################################    
 ##
-##  Create a function that predicts the next word in a sequence of words
+##  Function that predicts the next word in a sequence of words.
 ##  Input assumes the data frame has been parsed and limited to the last 'n' words in a sequence.
-##  Output is a character vector of the top 10 most frequent next words.
+##  Input = character vector containing a sequence of word(s), Output = a character vector of the top 10 most frequent next words.
 ##
 #########################################################################################################################################
     
@@ -191,7 +169,6 @@
                 found <- TRUE
                 msg <- paste("wc:", wc, "word:", word_ref, "ngram_index:",ngram_index, "found:",found)
                 print(msg)
-                
             }
             else {
                 wc <- wc - 1
@@ -199,25 +176,19 @@
                 ngram_index <- ngram_index - 1
                 word_ref <- word(input_word, wc_begin, wc_end)
             }
-            
         }
-        
         rownames(next_word) <- NULL
         return(next_word)
     }    
 
 #########################################################################################################################################
 ##
-##  Finds the word coverage of the unigrams.
+##  Function to find the word coverage of the unigrams.  Calculate the number of words to provide a percentage of the overall ngram.
+##  Input = dataframe of ngram file, percent of coverage to calculate, Output = number of words to cover the percentage.
 ##
 #########################################################################################################################################
     
-    
     word_coverage <- function(input, percent_coverage) {
-
-        
-        
-        
         num_words <- 0
         for (x in 1:length(input)) {
             num_words <- num_words + input[x] 
@@ -229,7 +200,8 @@
 
 #########################################################################################################################################    
 ##
-## Parse and clean user text input.  This returns the last 'n' words of the input.
+##  Function to parse and clean user text input.  
+##  Input = character vector from user input, Output = character vector of last 'n' words of the input.
 ##
 #########################################################################################################################################
     
