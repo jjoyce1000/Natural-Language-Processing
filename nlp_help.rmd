@@ -51,7 +51,7 @@ There are several R scripts that are used to perform this analysis:
 - [nlp_clean.R](https://github.com/jjoyce1000/Natural-Language-Processing/blob/master/nlp_clean.R):  
   This script defines functions to clean and manipulate corpus data for the Natural Language Processing - Text Prediction project.  
 
-- [global.R](hhttps://github.com/jjoyce1000/Natural-Language-Processing/blob/master/global.R):  
+- [global.R](https://github.com/jjoyce1000/Natural-Language-Processing/blob/master/global.R):  
   This script serves as the global.R file for the Natural Language Processing - Text Prediction Shiny Application. 
   
 - [ui.R](https://github.com/jjoyce1000/Natural-Language-Processing/blob/master/ui.R):  
